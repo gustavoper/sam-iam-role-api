@@ -1,0 +1,10 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "sam-iam-role-api"
+resolve_s3 = true
+s3_prefix = "sam-iam-role-api"
+region = "sa-east-1"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
+confirm_changeset = true

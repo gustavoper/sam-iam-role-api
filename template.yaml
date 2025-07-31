@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: API Gateway + Lambda to create and fetch IAM roles
+
+Resources:
+  CreateRoleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: create_role.lambda_handler
+      Runtime: python3.12
+      CodeUri: lambda/
+      Timeout: 30
+      MemorySize: 128
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - iam:CreateRole
+                - iam:AttachRolePolicy
+                - iam:GetRole
+              Resource: "arn:aws:iam::*:role/*"
+      Events:
+        CreateRoleApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref IamRoleApi
+            Path: /role
+            Method: post
+
+  GetRoleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: get_role.lambda_handler
+      Runtime: python3.12
+      CodeUri: lambda/
+      Timeout: 30
+      MemorySize: 128
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - iam:GetRole
+              Resource: "arn:aws:iam::*:role/*"
+      Events:
+        GetRoleApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref IamRoleApi
+            Path: /role/{name}
+            Method: get
+
+  IamRoleApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: IamRoleApi
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+
+Outputs:
+  CreateRoleApi:
+    Description: "POST /role"
+    Value: !Sub "https://${IamRoleApi}.execute-api.${AWS::Region}.amazonaws.com/prod/role"
+
+  GetRoleApi:
+    Description: "GET /role/{name}"
+    Value: !Sub "https://${IamRoleApi}.execute-api.${AWS::Region}.amazonaws.com/prod/role/{name}"
