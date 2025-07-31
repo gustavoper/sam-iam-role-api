@@ -117,9 +117,12 @@ MIT © 2025 Gustavo Pereira
 
 Comandos para não esquecer:
 
+
+```
 sam deploy --guided
 
 sam sync --watch
 
 
 sam delete
+```
